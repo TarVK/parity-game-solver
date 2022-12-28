@@ -108,3 +108,4 @@ dist
 
 # The games are too big to store in source
 /games
+/output

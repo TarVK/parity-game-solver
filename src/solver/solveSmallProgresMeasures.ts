@@ -11,7 +11,7 @@ import {IProgressOrder} from "./_types/IProgressOrder";
 export function solveSmallProgressMeasures(
     game: IParityGame,
     orderGenerator: IProgressOrder
-): {0: IParityNode[]; 1: IParityNode[]} {
+): {0: IParityNode[]; 1: IParityNode[]; iterations: number} {
     // Initialize the data structures
     const measures = new Map<IParityNode, IProgressMeasure>();
     const minMeasure = new Array(game.maxPriority + 1).fill(0);
@@ -23,14 +23,18 @@ export function solveSmallProgressMeasures(
     // Perform the updates
     let next: IteratorResult<IParityNode, void>;
     let success = false;
-    let i = 1000;
-    while ((next = order.next(success)) && next?.value && i-- > 0)
+    let i = Number.MAX_SAFE_INTEGER; // A safety net to handle inproper orders
+    while ((next = order.next(success)) && next?.value && --i > 0)
         success = lift(measures, next.value, game.maxPriority, minMeasure);
+
+    if (i <= 0)
+        throw "Game did not resolve, it's either extremely large, or the order generator doesn't properly handle the stop condition";
 
     // Obtain the nodes that each player one
     return {
         0: game.nodes.filter(v => measures.get(v) != "T"),
         1: game.nodes.filter(v => measures.get(v) == "T"),
+        iterations: Number.MAX_SAFE_INTEGER - i,
     };
 }
 
@@ -85,7 +89,7 @@ function progress(
     if (v.isEvenPriority) return result;
 
     // If the priority is odd, increased the measure by one
-    for (let i = v.priority; i >= 0; i++) {
+    for (let i = v.priority; i >= 0; i--) {
         const val = measureW[i];
         if (val == maxPriority) result[i] = 0;
         else {

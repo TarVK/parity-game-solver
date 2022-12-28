@@ -6,6 +6,8 @@ export type IParityGame = {
 };
 
 export type IParityNode = {
+    /** The id of the node */
+    id: number;
     /** The priority of this parity node */
     priority: number;
     /** Whether the priority is even */

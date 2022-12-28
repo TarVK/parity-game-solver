@@ -7,11 +7,12 @@ export function* getOrderFromList<T>(list: T[]): Generator<T, void, boolean> {
     const length = list.length;
     let failCount = 0;
     while (true)
-        for (let node of list)
-            if (yield node) {
-                failCount = 0;
-            } else {
+        for (let node of list) {
+            const changed = yield node;
+            if (changed) failCount = 0;
+            else {
                 failCount++;
                 if (failCount > length) return;
             }
+        }
 }

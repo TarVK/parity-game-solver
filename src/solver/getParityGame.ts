@@ -13,6 +13,7 @@ export function getParityGame(ast: IParityGameAST): IParityGame {
     const nodeMap = new Map<number, IParityNode>();
     ast.nodes.forEach(({id, owner, priority}) => {
         nodeMap.set(id, {
+            id,
             owner,
             priority,
             isEvenPriority: priority % 2 == 0,

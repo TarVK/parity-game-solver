@@ -4,16 +4,14 @@ import {parityGameParser} from "../parsing/parityGameParser";
 
 describe("parityGameParser", () => {
     describe("Loads dining philosophers", () => {
-        const dir = Path.join(process.cwd(), "games");
+        const dir = Path.join(process.cwd(), "games", "dining");
 
         const files = readdirSync(dir)
             .filter(v => !v.match(/10|11/))
             .slice(0, 15);
         for (let fileName of files) {
             it(`Should load "${fileName}"`, async () => {
-                const file = await FS.readFile(
-                    Path.join(process.cwd(), "games", fileName)
-                );
+                const file = await FS.readFile(Path.join(dir, fileName));
                 const text = await file.toString();
 
                 const result = parityGameParser.parse(text);
@@ -23,7 +21,7 @@ describe("parityGameParser", () => {
                     expect(result.value.maxParity).toBeGreaterThan(0);
                     expect(result.value.nodes.length).toBeGreaterThan(5);
                 }
-            });
+            }, 100000);
         }
     });
 });
