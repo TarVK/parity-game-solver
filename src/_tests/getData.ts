@@ -28,6 +28,8 @@ const getOutput = async (
 
 // A fake "Test" that just generates data
 it("Gets all data", async () => {
+    if (0 == 0) return;
+
     const orders = [
         {name: "input", order: createInputOrder()},
         {name: "random", order: createRandomOrder()},
@@ -74,7 +76,7 @@ Odd (${odd.length}): ${odd.map(({id}) => id).join(" ")}
 
 `
                 )
-                .join("\\");
+                .join("");
             await FS.writeFile(Path.join(outDir, Path.basename(fileName) + ".txt"), text);
         }
     }

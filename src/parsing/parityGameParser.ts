@@ -32,3 +32,14 @@ export const parityGameParser: Parser<IParityGameAST> = p
         maxParity: parity,
         nodes,
     }));
+
+export const stringifyParityGame = (pg: IParityGameAST) =>
+    (pg.maxParity ? `parity ${pg.maxParity};\n` : "") +
+    pg.nodes
+        .map(
+            ({id, owner, name, priority, successors}) =>
+                `${id} ${priority} ${owner} ${successors.join(",")}${
+                    name ? " " + name : ""
+                };`
+        )
+        .join("\n");

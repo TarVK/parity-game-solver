@@ -11,13 +11,14 @@ export function getParityGame(ast: IParityGameAST): IParityGame {
 
     // Create a map of unlinked nodes
     const nodeMap = new Map<number, IParityNode>();
-    ast.nodes.forEach(({id, owner, priority}) => {
+    ast.nodes.forEach(({id, owner, priority, name}) => {
         nodeMap.set(id, {
             id,
             owner,
             priority,
             isEvenPriority: priority % 2 == 0,
             successors: [],
+            name,
         });
     });
 

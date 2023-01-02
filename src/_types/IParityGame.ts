@@ -16,4 +16,6 @@ export type IParityNode = {
     owner: 0 | 1;
     /** The list of successor nodes */
     successors: IParityNode[];
+    /** The name of the node, if any */
+    name?: string;
 };

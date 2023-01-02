@@ -22,7 +22,10 @@
         "url": "git+https://github.com/TarVK/parity-game-solver.git"
     },
     "keywords": [
-        "SAT"
+        "parity-game",
+        "parity",
+        "game",
+        "solver"
     ],
     "author": "Tar van Krieken",
     "license": "MIT",
