@@ -9,6 +9,7 @@ import {getAdaptiveOrderFromList} from "../solver/orders/utils/getAdaptiveOrderF
 import {getRepeatedOrderFromList} from "../solver/orders/utils/getRepeatedOrderFromList";
 import {solveSmallProgressMeasures} from "../solver/solveSmallProgresMeasures";
 import {IProgressOrder} from "../solver/_types/IProgressOrder";
+import {IParityNode} from "../_types";
 
 const getOutput = async (
     path: string,
@@ -22,7 +23,7 @@ const getOutput = async (
 
     const parityGame = getParityGame(parityGameAST.value);
     const startTime = Date.now();
-    const result = solveSmallProgressMeasures(parityGame, order);
+    const result = await solveSmallProgressMeasures(parityGame, order);
     return {...result, time: Date.now() - startTime};
 };
 
@@ -57,7 +58,12 @@ it("Gets all data", async () => {
         for (let fileName of files) {
             let out: {
                 orderName: string;
-                data: ReturnType<typeof solveSmallProgressMeasures> & {time: number};
+                data: {
+                    0: IParityNode[];
+                    1: IParityNode[];
+                    iterations: number;
+                    time: number;
+                };
             }[] = [];
             for (let {name: orderName, order} of orders) {
                 const data = await getOutput(dirName + Path.sep + fileName, order);

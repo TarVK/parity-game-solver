@@ -84,8 +84,13 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
             if (tool == "select") {
                 const s = getNode(point);
                 if (s != null) {
-                    movedAmount.current = 0;
-                    editorState.setSelection({type: "node", node: s});
+                    const selection = editorState.getSelection();
+                    if (selection?.type == "node" && selection.node == s) {
+                        movedAmount.current = 0;
+                    } else {
+                        editorState.setSelection({type: "node", node: s});
+                        movedAmount.current = -1;
+                    }
                     dragging.current = true;
                 }
             } else if (tool == "add") {
@@ -114,12 +119,11 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
                 const from = arcStartNodeRef.current;
                 if (from != null && to != null) state.addTransition(from, to);
             } else if (tool == "select") {
-                if (movedAmount.current >= 5) return;
+                if (movedAmount.current >= 5 || movedAmount.current < 0) return;
 
                 const selection = editorState.getSelection();
-                const s = getNode(point);
-                if (selection?.type == "node" && selection.node == s) {
-                    const node = state.getNodeData(s);
+                if (selection?.type == "node") {
+                    const node = state.getNodeData(selection.node);
                     if (node) editorState.setEditingNode(node);
                 }
             }
@@ -133,7 +137,9 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
             mousePos.current.set(point);
             const dx = evt.movementX;
             const dy = evt.movementY;
-            movedAmount.current += Math.sqrt(dx * dx + dy * dy);
+
+            if (movedAmount.current >= 0)
+                movedAmount.current += Math.sqrt(dx * dx + dy * dy);
             if (dragging.current) {
                 const selection = editorState.getSelection();
                 if (selection?.type == "node") {
@@ -183,6 +189,8 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
         } else if (nodePos) {
             state.addNode(nodePos, nodeOwner, priority, name);
         }
+
+        nodeOwnerEl.current?.focus();
     };
     const simplified = editorState.useSimplifiedView(h);
 
@@ -255,7 +263,6 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
                     styles={{root: {marginTop: theme.spacing.m}}}
                     value={nodePriority}
                     onChange={(e, v) => v != null && setNodePriority(v)}
-                    autoFocus
                     onKeyDown={evt => {
                         if (evt.key == "Enter") {
                             nodeNameEl.current?.focus();
@@ -269,7 +276,6 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
                     styles={{root: {marginTop: theme.spacing.m}}}
                     value={nodeName}
                     onChange={(e, v) => v != null && setNodeName(v)}
-                    autoFocus
                     onKeyDown={evt => {
                         if (evt.key == "Enter") updateNode();
                         evt.stopPropagation();

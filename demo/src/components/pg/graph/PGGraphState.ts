@@ -179,7 +179,7 @@ export class PGGraphState {
             x: (maxX + minX) / 2,
             y: (maxY + minY) / 2,
         };
-        const padding = 2 * radius + radius; // 2*radius to fit everything, + radius as random margin
+        const padding = 2 * radius + 4 * radius; // 2*radius to fit everything, + 4 * radius as random margin
         const size = {
             width: maxX - minX + padding,
             height: maxY - minY + padding,

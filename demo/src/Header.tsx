@@ -26,7 +26,7 @@ export const Header: FC<{info?: React.ReactNode}> = ({children, info}) => {
                 },
             }}>
             <StackItem align="center">
-                <h1 style={{margin: 0}}>Model checker</h1>
+                <h1 style={{margin: 0}}>Parity game solver</h1>
             </StackItem>
             <StackItem align="center">{children}</StackItem>
             <StackItem align="center" style={{width: 300}}>

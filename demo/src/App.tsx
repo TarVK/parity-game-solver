@@ -16,28 +16,10 @@ const theme = getTheme();
 export const App: FC = () => {
     const editorState = useLazyRef(() => {
         const state = new State();
-        state.setPG(`parity 1;
-0 34 0 0,1 yes;
-1 2 1  no;`);
+        state.setPG(``);
         return new PGGraphState(state);
     }).current;
     const {PGState: state} = editorState;
-
-    // Small hidden feature to aid with testing
-    // useEffect(() => {
-    //     const listener = (event: KeyboardEvent) => {
-    //         if (event.key == "p")
-    //             state
-    //                 .getFormulas()
-    //                 .forEach(formula =>
-    //                     formula.setAlgoritm(
-    //                         formula.getAlgoritm() == "EmersonLei" ? "naive" : "EmersonLei"
-    //                     )
-    //                 );
-    //     };
-    //     window.addEventListener("keydown", listener);
-    //     return () => window.removeEventListener("keydown", listener);
-    // }, [state]);
 
     return (
         <div>
@@ -57,7 +39,7 @@ export const App: FC = () => {
                     <Header info={<Info />}>
                         <ExampleModal
                             onLoad={async text => {
-                                const simplified = text.split("\n").length > 20;
+                                const simplified = text.split("\n").length > 40;
                                 if (simplified) {
                                     editorState.enableSimplifiedView(true);
                                     editorState.setCodeEditorVisible(false);

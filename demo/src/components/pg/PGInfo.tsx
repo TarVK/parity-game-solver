@@ -9,10 +9,6 @@ export const PGInfo: FC<{state: State}> = ({state}) => {
     const [h] = useDataHook();
 
     const pg = state.getPG(h);
-    const [[evenStates, oddStates]] = useMemoDataHook(h => {
-        return [null, null]; // TODO:
-    }, []);
-
     const transitionCount = useMemo(() => {
         if (!pg) return;
         return pg.nodes.reduce((count, node) => count + node.successors.length, 0);
@@ -61,15 +57,6 @@ export const PGInfo: FC<{state: State}> = ({state}) => {
                         </StackItem>
                         {pg.maxPriority}
                     </Stack>
-                </div>
-            )}
-
-            {evenStates && (
-                <div style={{marginTop: 20}}>
-                    <Label>States won by even</Label>
-                    <div style={{maxHeight: 400, overflowY: "auto"}}>{evenStates}</div>
-                    <Label>States won by odd</Label>
-                    <div style={{maxHeight: 400, overflowY: "auto"}}>{oddStates}</div>
                 </div>
             )}
 

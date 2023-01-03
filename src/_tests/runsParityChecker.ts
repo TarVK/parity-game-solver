@@ -23,7 +23,7 @@ const createTest = (
         if (!parityGameAST.status) return;
 
         const parityGame = getParityGame(parityGameAST.value);
-        const result = solveSmallProgressMeasures(parityGame, order);
+        const result = await solveSmallProgressMeasures(parityGame, order);
 
         expect(result[0].map(node => node.id)).toEqual(nodes);
     });

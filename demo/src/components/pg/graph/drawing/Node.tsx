@@ -1,7 +1,7 @@
 import {getTheme} from "@fluentui/react";
 import {useDataHook} from "model-react";
 import React, {FC} from "react";
-import {failsColor, satisfiesColor} from "../../../../colors";
+import {oddColor, evenColor} from "../../../../colors";
 import {State} from "../../../../model/State";
 import {PGGraphState} from "../PGGraphState";
 
@@ -18,8 +18,9 @@ export const Node: FC<{editorState: PGGraphState; node: number}> = ({
     const selection = editorState.getSelection(h);
     const selected = selection?.type == "node" && selection.node == node;
 
-    const wonByEven = false; // TODO:
-    const wonByOdd = false; // TODO:
+    const winner = PGState.getNodeWinner(node, h);
+    const wonByEven = winner == 0;
+    const wonByOdd = winner == 1;
 
     const isMainNode = node == 0;
 
@@ -30,7 +31,7 @@ export const Node: FC<{editorState: PGGraphState; node: number}> = ({
         <g id={`${node}`}>
             <rect
                 style={{
-                    fill: wonByEven ? satisfiesColor : wonByOdd ? failsColor : "white",
+                    fill: wonByEven ? evenColor : wonByOdd ? oddColor : "white",
                     stroke: selected ? theme.palette.themePrimary : "#000",
                     strokeWidth: isMainNode ? 3 : 1,
                     strokeMiterlimit: 40,

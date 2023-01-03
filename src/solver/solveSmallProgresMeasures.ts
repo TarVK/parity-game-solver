@@ -6,12 +6,14 @@ import {IProgressOrder} from "./_types/IProgressOrder";
  * Performs the small progress measures parity solving algorithm
  * @param game The game to be solved
  * @param orderGenerator The factory for the node order to apply the algorithm in
+ * @param asyncInterval The number of iterations after which to async wait for a ms
  * @returns The nodes won by each of the players
  */
-export function solveSmallProgressMeasures(
+export async function solveSmallProgressMeasures(
     game: IParityGame,
-    orderGenerator: IProgressOrder
-): {0: IParityNode[]; 1: IParityNode[]; iterations: number} {
+    orderGenerator: IProgressOrder,
+    asyncInterval: number = 5000
+): Promise<{0: IParityNode[]; 1: IParityNode[]; iterations: number}> {
     // Initialize the data structures
     const measures = new Map<IParityNode, IProgressMeasure>();
     const minMeasure = new Array(game.maxPriority + 1).fill(0);
@@ -24,8 +26,16 @@ export function solveSmallProgressMeasures(
     let next: IteratorResult<IParityNode, void>;
     let success = false;
     let i = Number.MAX_SAFE_INTEGER; // A safety net to handle inproper orders
-    while ((next = order.next(success)) && next?.value && --i > 0)
+    let waitCount = asyncInterval;
+    while ((next = order.next(success)) && next?.value && --i > 0) {
         success = lift(measures, next.value, game.maxPriority, minMeasure);
+
+        // Prevent long loops without pauses to keep the program responsive
+        if (waitCount-- < 0) {
+            waitCount = asyncInterval;
+            await new Promise(res => setTimeout(res, 0));
+        }
+    }
 
     if (i <= 0)
         throw "Game did not resolve, it's either extremely large, or the order generator doesn't properly handle the stop condition";

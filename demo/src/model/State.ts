@@ -11,13 +11,18 @@ import {
     IParityNodeAST,
     IParityGameAST,
     stringifyParityGame,
+    solveSmallProgressMeasures,
 } from "parity-game-solver";
-import {DataCacher, Field, IDataHook} from "model-react";
+import {DataCacher, ExecutionState, Field, IDataHook} from "model-react";
 import {drawGraph} from "../components/pg/graph/layout/drawGraph";
 import {formatSyntaxError} from "../util/formatyntaxError";
 import {IBoundingBox} from "../_types/IBoundingBox";
 import {IPoint} from "../_types/IPoint";
 import {ISyntaxError} from "../_types/ISyntaxError";
+import {IOrderType} from "../_types/IOrderType";
+import {IStrategyType} from "../_types/IStrategyType";
+import {IOrderFactory} from "parity-game-solver/build/solver/orders/_types/IOrderFactory";
+import {IProgressOrder} from "parity-game-solver/build/solver/_types/IProgressOrder";
 
 /**
  * A class to store the application node
@@ -40,6 +45,16 @@ export class State {
         return null;
     });
 
+    protected result = new Field<{
+        0: IParityNode[];
+        1: IParityNode[];
+        iterations: number;
+        duration: number;
+    } | null>(null);
+    protected orderType = new Field<IOrderType>("random");
+    protected strategyType = new Field<IStrategyType>("adaptive");
+    protected loadingResult = new ExecutionState();
+
     // PG text handling
     /**
      * Sets the text representing the PG
@@ -47,6 +62,7 @@ export class State {
      */
     public setPG(text: string): void {
         this.PGText.set(text);
+        this.result.set(null);
     }
 
     /**
@@ -259,6 +275,127 @@ export class State {
             };
             this.setPG(stringifyParityGame(pg));
         }
+    }
+
+    // Parity game functions
+    protected strategy = new DataCacher(h => {
+        const createOrder = {
+            input: createInputOrder,
+            random: (f: IOrderFactory) => createRandomOrder(0, f),
+        }[this.orderType.get(h)];
+        const strategy = {
+            adaptive: getAdaptiveOrderFromList,
+            cycle: getOrderFromList,
+            repeat: getRepeatedOrderFromList,
+        }[this.strategyType.get(h)];
+
+        return createOrder(strategy);
+    });
+
+    /**
+     * Sets the strategy type to be used
+     * @param type The strategy type
+     */
+    public setStrategyType(type: IStrategyType): void {
+        this.result.set(null);
+        this.strategyType.set(type);
+    }
+
+    /**
+     * Retrieves the strategy type for the ordering
+     * @param hook The hook to subscribe to changes
+     * @returns The stategy type
+     */
+    public getStrategyType(hook?: IDataHook): IStrategyType {
+        return this.strategyType.get(hook);
+    }
+
+    /**
+     * Sets the base order type
+     * @param type The base order
+     */
+    public setOrderType(type: IOrderType): void {
+        this.result.set(null);
+        this.orderType.set(type);
+    }
+
+    /**
+     * Retrieves the base order type
+     * @param hook The hook to subscribe to changes
+     * @returns The base order type
+     */
+    public getOrderType(hook?: IDataHook): IOrderType {
+        return this.orderType.get(hook);
+    }
+
+    /**
+     * Retrieves the strategy
+     * @param hook The hook to subscribe to changes
+     * @returns The strategy to be used for the small progress measures algorithm
+     */
+    public getStrategy(hook?: IDataHook): IProgressOrder {
+        return this.strategy.get(hook);
+    }
+
+    /**
+     * Performs the small progress measures algorithm
+     */
+    public check(): Promise<void> {
+        return this.loadingResult.add(async () => {
+            const pg = this.getPG();
+            const order = this.getStrategy();
+
+            if (!pg) return;
+            const startTime = Date.now();
+            const result = await solveSmallProgressMeasures(pg, order);
+            this.result.set({...result, duration: Date.now() - startTime});
+        });
+    }
+
+    protected winners = new DataCacher(h => {
+        const winners: Record<number, 0 | 1> = {};
+
+        const nodes = this.getNodeWinners(h);
+        if (!nodes) return winners;
+
+        for (let wonByEven of nodes[0]) winners[wonByEven.id] = 0;
+        for (let wonByOdd of nodes[1]) winners[wonByOdd.id] = 1;
+
+        return winners;
+    });
+
+    /**
+     * Retrieves the winners of every node
+     * @param hook The hook to subscribe to changes
+     * @returns The even and odd player's won nodes
+     */
+    public getNodeWinners(hook?: IDataHook): [IParityNode[], IParityNode[]] | null {
+        const result = this.result.get(hook);
+        if (!result) return null;
+
+        return [result[0], result[1]];
+    }
+
+    /**
+     * Retrieves who won the given node
+     * @param node The node to check
+     * @param hook The hook to subscribe to changes
+     * @returns Either null if the check wasn't performed, or 0 or 1 if even or odd won respectively
+     */
+    public getNodeWinner(node: number | IParityNode, hook?: IDataHook): null | 0 | 1 {
+        return this.winners.get(hook)[typeof node == "number" ? node : node.id] ?? null;
+    }
+
+    /**
+     * Retrieves the verification process data
+     * @param hook The hook to subscribe to changes
+     * @returns The verification data
+     */
+    public getCheckData(hook?: IDataHook): {duration: number; iterations: number} | null {
+        const result = this.result.get(hook);
+        if (!result) return null;
+
+        return {duration: result.duration, iterations: result.iterations};
     }
 
     /**
