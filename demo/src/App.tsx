@@ -17,6 +17,7 @@ export const App: FC = () => {
     const editorState = useLazyRef(() => {
         const state = new State();
         state.setPG(``);
+        (window as any).state = state; // For debugging purposes
         return new PGGraphState(state);
     }).current;
     const {PGState: state} = editorState;

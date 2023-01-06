@@ -30,20 +30,21 @@ export const createGetPriorityOrderFromList = (
         );
         const orderPerPriority = nodesPerPriority
             .filter(nodes => nodes.length > 0)
-            .map(nodes => withinPriorityOrder(nodes))
+            .map(nodes => () => withinPriorityOrder(nodes))
             .reverse();
 
         const length = orderPerPriority.length;
         let failCount = 0;
         while (true)
-            for (let order of orderPerPriority) {
+            for (let createOrder of orderPerPriority) {
+                const order = createOrder();
                 let changedAtLeastOnce = false;
                 let changed = false;
                 while (true) {
                     const next = order.next(changed);
                     if (next.done) break;
                     changed = yield next.value;
-                    changedAtLeastOnce = true;
+                    if (changed) changedAtLeastOnce = true;
                 }
 
                 if (changedAtLeastOnce) failCount = 0;

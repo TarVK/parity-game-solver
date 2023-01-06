@@ -1,1 +1,1 @@
-export type IOrderType = "input" | "random";
+export type IOrderType = "input" | "random" | "priority";

@@ -12,6 +12,8 @@ import {
     IParityGameAST,
     stringifyParityGame,
     solveSmallProgressMeasures,
+    createPriorityOrder,
+    createGetPriorityOrderFromList,
 } from "parity-game-solver";
 import {DataCacher, ExecutionState, Field, IDataHook} from "model-react";
 import {drawGraph} from "../components/pg/graph/layout/drawGraph";
@@ -53,6 +55,7 @@ export class State {
     } | null>(null);
     protected orderType = new Field<IOrderType>("random");
     protected strategyType = new Field<IStrategyType>("adaptive");
+    protected perPriorityStrategy = new Field<boolean>(true);
     protected loadingResult = new ExecutionState();
 
     // PG text handling
@@ -131,6 +134,7 @@ export class State {
      * @param hook The hook to subscribe to changes
      */
     public getNodes(hook?: IDataHook): IParityNode[] {
+        // console.log(this.parityGame.get());
         return this.parityGame.get(hook)?.nodes || [];
     }
 
@@ -185,9 +189,9 @@ export class State {
      * @param id The ID of the node to be removed
      */
     public removeNode(id: number): void {
-        const poses = {...this.PGPoses.get()};
-        delete poses[id];
-        this.PGPoses.set(poses);
+        // const poses = {...this.PGPoses.get()};
+        // delete poses[id];
+        // this.PGPoses.set(poses);
 
         const p = this.parsed.get();
         if (p.status) {
@@ -269,7 +273,7 @@ export class State {
                     if (node.id != from) return node;
                     return {
                         ...node,
-                        successors: node.successors.filter(s => s == to),
+                        successors: node.successors.filter(s => s != to),
                     };
                 }),
             };
@@ -282,12 +286,15 @@ export class State {
         const createOrder = {
             input: createInputOrder,
             random: (f: IOrderFactory) => createRandomOrder(0, f),
+            priority: createPriorityOrder,
         }[this.orderType.get(h)];
-        const strategy = {
+        let strategy: IOrderFactory = {
             adaptive: getAdaptiveOrderFromList,
             cycle: getOrderFromList,
             repeat: getRepeatedOrderFromList,
         }[this.strategyType.get(h)];
+        if (this.perPriorityStrategy.get(h))
+            strategy = createGetPriorityOrderFromList(strategy);
 
         return createOrder(strategy);
     });
@@ -320,6 +327,15 @@ export class State {
     }
 
     /**
+     * Sets whether the higher order strategy of applying a strategy per priority is applied
+     * @param enabled Whether or not it should be applied
+     */
+    public setUsesPerPriorityStrategy(enabled: boolean) {
+        this.result.set(null);
+        this.perPriorityStrategy.set(enabled);
+    }
+
+    /**
      * Retrieves the base order type
      * @param hook The hook to subscribe to changes
      * @returns The base order type
@@ -338,6 +354,15 @@ export class State {
     }
 
     /**
+     * Retrieves whether the higher order strategy of applying a strategy per priority is applied
+     * @param hook The hook to subscribe to changes
+     * @returns Whether the strategy is applied
+     */
+    public usesPerPriorityStrategy(hook?: IDataHook): boolean {
+        return this.perPriorityStrategy.get(hook);
+    }
+
+    /**
      * Performs the small progress measures algorithm
      */
     public check(): Promise<void> {
@@ -350,6 +375,15 @@ export class State {
             const result = await solveSmallProgressMeasures(pg, order);
             this.result.set({...result, duration: Date.now() - startTime});
         });
+    }
+
+    /**
+     * Retrieves whether or not the parity game is currently being checked
+     * @param hook The hook to subscribe to changes
+     * @returns Whether the parity game is being checked
+     */
+    public isChecking(hook?: IDataHook): boolean {
+        return this.loadingResult.isLoading(hook);
     }
 
     protected winners = new DataCacher(h => {

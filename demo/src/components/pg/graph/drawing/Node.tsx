@@ -60,10 +60,17 @@ export const Node: FC<{editorState: PGGraphState; node: number}> = ({
             </text>
             <text
                 x={pos.x}
-                y={-pos.y + radius * 2}
+                y={-pos.y + radius * (1 + (ownedByEven ? Math.sqrt(2) : 1))}
                 fontSize={15}
                 textAnchor="middle"
-                dy=".3em">
+                dy=".3em"
+                style={{
+                    paintOrder: "stroke",
+                    stroke: "white",
+                    strokeWidth: 4,
+                    strokeLinecap: "butt",
+                    strokeLinejoin: "miter",
+                }}>
                 {nodeData?.name ?? node}
             </text>
         </g>

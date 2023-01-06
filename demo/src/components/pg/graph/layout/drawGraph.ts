@@ -15,20 +15,28 @@ const s = <T>(v: T) => v + "";
 export async function drawGraph(pg: IParityGame): Promise<Record<number, IPoint>> {
     const graph: ElkNode = {
         id: "root",
-        layoutOptions: {
-            "elk.algorithm": "force",
-            "elk.force.iterations": "1000",
-            "elk.spacing.nodeNode": "160",
-            "elk.layered.priority.straightness": "100",
-            "or.eclipse.elk.force.repulsivePower": "10",
-        },
+        // layoutOptions: {
+        //     "elk.algorithm": "force",
+        //     "elk.force.iterations": "1000",
+        //     "elk.spacing.nodeNode": "160",
+        //     "elk.layered.priority.straightness": "100",
+        //     "or.eclipse.elk.force.repulsivePower": "10",
+        // },
         // layoutOptions: {
         //     "elk.algorithm": "stress",
         // },
+        layoutOptions: {
+            "elk.algorithm": "layered",
+            "org.eclipse.elk.spacing.nodeNode": radius * 3 + "",
+            "org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers": radius * 3 + "",
+            "org.eclipse.elk.core.options.EdgeRouting": "ORTHOGONAL",
+            // "org.eclipse.elk.layered.compaction.postCompaction.strategy": "EDGE_LENGTH",
+            // "org.eclipse.elk.layered.compaction.postCompaction.constraints": "QUADRATIC",
+        },
         children: [...pg.nodes].map(state => ({
             id: s(state.id),
-            width: radius,
-            height: radius,
+            width: radius * 2 * (state.owner == 0 ? Math.sqrt(2) : 1),
+            height: radius * 2 * (state.owner == 0 ? Math.sqrt(2) : 1),
         })),
         edges: getTransitions(pg).map(({from, to}) => ({
             id: `${from}-${to}`,

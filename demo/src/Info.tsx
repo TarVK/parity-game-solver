@@ -8,7 +8,7 @@ export const Info: FC = () => {
     return (
         <>
             <p>
-                This website provides simple{" "}
+                This website provides simple min{" "}
                 <Link href="https://en.wikipedia.org/wiki/Parity_game">
                     Parity Game (PG)
                 </Link>{" "}

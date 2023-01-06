@@ -66,7 +66,7 @@ export const Arc: FC<{
         y: (toPos.y - fromPos.y) / length,
     };
 
-    const fromOffsetAmount = getOffset(dir, fromEven ? Math.PI / 4 : 0, radius);
+    const fromOffsetAmount = getOffset(dir, fromEven ? Math.PI / 4 : 0, radius + 1);
     const fromOffset = {
         x: fromPos.x + dir.x * fromOffsetAmount,
         y: fromPos.y + dir.y * fromOffsetAmount,

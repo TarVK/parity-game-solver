@@ -1,4 +1,4 @@
-import React, {FC, useEffect} from "react";
+import React, {FC, useEffect, useRef} from "react";
 import {getTheme, Stack, StackItem} from "@fluentui/react";
 import {State} from "../../model/State";
 import {useEditor} from "../editor/useEditor";
@@ -31,8 +31,10 @@ export const PGCodeEditor: FC<{state: PGGraphState}> = ({state}) => {
 
     useEffect(() => {
         const editor = editorRef.current;
-        if (editor) {
+        const model = editor?.getModel();
+        if (editor && model) {
             const disposable = editor.onDidChangeModelContent(() => {
+                versionRef.current = model.getVersionId();
                 PGState.setPG(editor.getValue());
             });
 
@@ -41,11 +43,26 @@ export const PGCodeEditor: FC<{state: PGGraphState}> = ({state}) => {
     }, [editorRef.current]);
 
     const [h] = useDataHook();
-    const ltsText = PGState.getPGText(h);
+    const pgText = PGState.getPGText(h);
+    const versionRef = useRef(0);
     useEffect(() => {
         const editor = editorRef.current;
-        if (editor && editor.getValue() != ltsText) editor.setValue(ltsText);
-    }, [ltsText]);
+        const model = editor?.getModel();
+        if (editor && editor.getValue() != pgText && model) {
+            const current = editor.getValue();
+            if (current.trim() == pgText.trim()) return;
+
+            // editor.setValue(ltsText);
+            const fullRange = model.getFullModelRange();
+            versionRef.current++;
+            editor.executeEdits("graphical", [
+                {
+                    text: pgText,
+                    range: fullRange,
+                },
+            ]);
+        }
+    }, [pgText]);
 
     const shown = state.isCodeEditorVisible(h);
     useEffect(() => {
