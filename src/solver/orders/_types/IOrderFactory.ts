@@ -1,4 +1,8 @@
+import {IParityNode} from "../../../_types";
+
 /**
  * A factory for order generators
  */
-export type IOrderFactory = <T>(list: T[]) => Generator<T, void, boolean>;
+export type IOrderFactory = (
+    list: IParityNode[]
+) => Generator<IParityNode, void, boolean>;

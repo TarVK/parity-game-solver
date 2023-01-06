@@ -1,6 +1,6 @@
 import {getRandomizer} from "../../utils/getRandomizer";
 import {IParityGame, IParityNode} from "../../_types/IParityGame";
-import {getOrderFromList} from "./utils/getOrderFromList";
+import {getOrderFromList} from "./orderStrategies/getOrderFromList";
 import {IOrderFactory} from "./_types/IOrderFactory";
 
 /**

@@ -4,11 +4,11 @@ import {IProgressOrder} from "../_types/IProgressOrder";
 import {IOrderFactory} from "./_types/IOrderFactory";
 
 /**
- * creates a small progress measure order, simply based on the node order in the game
+ * creates a small progress measure order, based on the node priority (decreasing)
  * @param getOrder The order strategy type
  * @returns The order generator
  */
-export const createInputOrder = (getOrder: IOrderFactory = getOrderFromList) =>
-    function* inputOrder(game: IParityGame): Generator<IParityNode, void, boolean> {
-        yield* getOrder(game.nodes);
+export const createPriorityOrder = (getOrder: IOrderFactory = getOrderFromList) =>
+    function* priorityOrder(game: IParityGame): Generator<IParityNode, void, boolean> {
+        yield* getOrder([...game.nodes].sort((a, b) => b.priority - a.priority));
     };

@@ -6,8 +6,8 @@ import {createRandomOrder} from "../solver/orders/createRandomOrder";
 import {createInputOrder} from "../solver/orders/createInputOrder";
 import {solveSmallProgressMeasures} from "../solver/solveSmallProgresMeasures";
 import {IProgressOrder} from "../solver/_types/IProgressOrder";
-import {getRepeatedOrderFromList} from "../solver/orders/utils/getRepeatedOrderFromList";
-import {getAdaptiveOrderFromList} from "../solver/orders/utils/getAdaptiveOrderFromList";
+import {getRepeatedOrderFromList} from "../solver/orders/orderStrategies/getRepeatedOrderFromList";
+import {getAdaptiveOrderFromList} from "../solver/orders/orderStrategies/getAdaptiveOrderFromList";
 
 const createTest = (
     name: string,
@@ -32,6 +32,9 @@ const createTest = (
 describe("solveSmallProgressMeasures", () => {
     describe("Solves dining philosophers", () => {
         createTest("dining_2.invariantly_inevitably_eat.gm", [14, 16, 21]);
-        createTest("dining_2.plato_infinitely_often_can_eat.gm", []);
+        createTest(
+            "dining_2.plato_infinitely_often_can_eat.gm",
+            [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12]
+        );
     });
 });

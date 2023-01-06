@@ -1,3 +1,4 @@
 export * from "./createInputOrder";
 export * from "./createRandomOrder";
-export * from "./utils";
+export * from "./createPriorityOrder";
+export * from "./orderStrategies";
