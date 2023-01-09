@@ -9,14 +9,12 @@ import {IOrderFactory} from "./_types/IOrderFactory";
  * @param getOrder The order strategy type
  * @returns An order generator that creates a random order
  */
-export const createRandomOrder = (
-    seed: number = 0,
-    getOrder: IOrderFactory = getOrderFromList
-) =>
-    function* randomOrder(game: IParityGame): Generator<IParityNode, void, boolean> {
+export const createRandomOrder =
+    (seed: number = 0, getOrder: IOrderFactory = getOrderFromList) =>
+    (game: IParityGame) => {
         const order = [...game.nodes];
         shuffleArray(order, getRandomizer(seed));
-        yield* getOrder(order);
+        return getOrder(order);
     };
 
 // Source: https://stackoverflow.com/a/12646864/8521718

@@ -12,7 +12,7 @@ import {ISelection} from "./_types/ISelection";
 import {IToolSelection} from "./_types/IToolSelection";
 import {ITransformation} from "./_types/ITransformation";
 
-const localStorageID = `model-checker-editorConfig`;
+const localStorageID = `parity-game-solver-editorConfig`;
 export class PGGraphState {
     protected showCodeEditor = new Field(false);
 

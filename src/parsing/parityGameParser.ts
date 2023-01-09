@@ -6,7 +6,9 @@ import {wrap} from "./wrap";
 const number = wrap(p.regex(/[0-9]+/))
     .map(val => Number(val))
     .desc("number");
-const name = wrap(p.regex(/[a-zA-Z][a-zA-Z0-9]*/).desc("name"));
+const name = wrap(
+    p.seq(p.string('"'), p.regex(/[^"]*/), p.string('"')).map(([_, v, _2]) => v)
+).desc("name");
 
 const nodeParser: Parser<IParityNodeAST> = p
     .seq(

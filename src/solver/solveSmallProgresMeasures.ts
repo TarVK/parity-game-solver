@@ -15,13 +15,15 @@ export async function solveSmallProgressMeasures(
     asyncInterval: number = 5000
 ): Promise<{0: IParityNode[]; 1: IParityNode[]; iterations: number}> {
     // Initialize the data structures
-    const measures = new Map<IParityNode, IProgressMeasure>();
-    const minMeasure = new Array(game.maxPriority + 1).fill(0);
-    const maxMeasure = new Array(game.maxPriority + 1).fill(0).map((v, i) => {
-        if (i % 2 == 0) return 0;
-        return game.nodes.filter(n => n.priority == i).length;
-    });
-    for (let node of game.nodes) measures.set(node, minMeasure);
+    const minMeasure: IProgressMeasure = new Array(game.maxPriority + 1).fill(0);
+    const maxMeasure: IProgressMeasure = new Array(game.maxPriority + 1)
+        .fill(0)
+        .map((v, i) => {
+            if (i % 2 == 0) return 0;
+            return game.nodes.filter(n => n.priority == i).length;
+        });
+    const maxId = game.nodes.reduce((m, {id}) => Math.max(m, id), 0);
+    const measures: IProgressMeasure[] = new Array(maxId + 1).fill(minMeasure);
 
     if (game.nodes.length == 0) return {0: [], 1: [], iterations: 0};
 
@@ -49,8 +51,8 @@ export async function solveSmallProgressMeasures(
 
     // Obtain the nodes that each player one
     return {
-        0: game.nodes.filter(v => measures.get(v) != "T"),
-        1: game.nodes.filter(v => measures.get(v) == "T"),
+        0: game.nodes.filter(v => measures[v.id] != "T"),
+        1: game.nodes.filter(v => measures[v.id] == "T"),
         iterations: maxIterations - i,
     };
 }
@@ -71,13 +73,13 @@ function lift(
 ): boolean {
     const progressions = v.successors.map(w => progress(measures, v, w, maxMeasure));
 
-    const oldMeasure = measures.get(v)!;
+    const oldMeasure = measures[v.id];
     const newMeasure =
         v.owner == 0
             ? progressions.reduce((m, n) => (compare(m, n) == -1 ? m : n), "T")
             : progressions.reduce((m, n) => (compare(m, n) == 1 ? m : n), minMeasure);
 
-    measures.set(v, newMeasure);
+    measures[v.id] = newMeasure;
 
     return compare(oldMeasure, newMeasure) != 0;
 }
@@ -96,7 +98,7 @@ function progress(
     w: IParityNode,
     maxMeasure: IProgressMeasure
 ): IProgressMeasure {
-    const measureW = measures.get(w)!;
+    const measureW = measures[w.id];
     if (measureW == "T") return "T";
 
     // Set the result to be equal up to the priority

@@ -8,7 +8,7 @@ import {IOrderFactory} from "./_types/IOrderFactory";
  * @param getOrder The order strategy type
  * @returns The order generator
  */
-export const createInputOrder = (getOrder: IOrderFactory = getOrderFromList) =>
-    function* inputOrder(game: IParityGame): Generator<IParityNode, void, boolean> {
-        yield* getOrder(game.nodes);
-    };
+export const createInputOrder =
+    (getOrder: IOrderFactory = getOrderFromList) =>
+    (game: IParityGame) =>
+        getOrder(game.nodes);

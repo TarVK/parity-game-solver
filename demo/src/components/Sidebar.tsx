@@ -101,6 +101,12 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                             text: "Priority order",
                             selected: order == "priority",
                         },
+                        {
+                            key: "3",
+                            data: "graph" as const,
+                            text: "Graph order",
+                            selected: order == "graph",
+                        },
                     ]}
                     notifyOnReselect
                     onChange={(e, option) => option && state.setOrderType(option.data)}
@@ -136,6 +142,12 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                             data: "adaptive" as const,
                             text: "Adaptive ordering",
                             selected: strategy == "adaptive",
+                        },
+                        {
+                            key: "3",
+                            data: "graph" as const,
+                            text: "Graph ordering",
+                            selected: strategy == "graph",
                         },
                     ]}
                     notifyOnReselect

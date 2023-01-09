@@ -1,1 +1,1 @@
-export type IStrategyType = "cycle" | "repeat" | "adaptive";
+export type IStrategyType = "cycle" | "repeat" | "adaptive" | "graph";
