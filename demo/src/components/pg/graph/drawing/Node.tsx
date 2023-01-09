@@ -27,6 +27,10 @@ export const Node: FC<{editorState: PGGraphState; node: number}> = ({
     const nodeData = PGState.getNodeData(node, h);
     const ownedByEven = nodeData?.owner == 0;
 
+    const measure = editorState.areMeasuresShown(h)
+        ? PGState.getNodeMeasure(node, h)
+        : null;
+
     return (
         <g id={`${node}`}>
             <rect
@@ -71,7 +75,11 @@ export const Node: FC<{editorState: PGGraphState; node: number}> = ({
                     strokeLinecap: "butt",
                     strokeLinejoin: "miter",
                 }}>
-                {nodeData?.name ?? node}
+                {measure ? (
+                    <>{measure == "T" ? measure : "(" + measure.join(",") + ")"}</>
+                ) : (
+                    nodeData?.name ?? node
+                )}
             </text>
         </g>
     );

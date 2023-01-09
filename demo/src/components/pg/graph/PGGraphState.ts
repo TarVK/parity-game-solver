@@ -43,6 +43,8 @@ export class PGGraphState {
     protected editingArc = new Field<null | IEditNode>(null);
     protected simplifiedView = new Field<boolean>(false);
 
+    protected showMeasures = new Field(false);
+
     protected tool = new Field<IToolSelection>("select");
 
     public PGState: State;
@@ -262,6 +264,23 @@ export class PGGraphState {
      */
     public enableSimplifiedView(simplified: boolean): void {
         this.simplifiedView.set(simplified);
+    }
+
+    /**
+     * Retrieves whether or not the measures are shown
+     * @param hook The hook to subscribe to changes
+     * @returns Whether measures are shown
+     */
+    public areMeasuresShown(hook?: IDataHook): boolean {
+        return this.showMeasures.get(hook);
+    }
+
+    /**
+     * Sets whether the measures are shown
+     * @param shown Whether the measures are shown
+     */
+    public setMeasuresShown(shown: boolean): void {
+        this.showMeasures.set(shown);
     }
 
     /**

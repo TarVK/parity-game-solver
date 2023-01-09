@@ -13,7 +13,12 @@ export async function solveSmallProgressMeasures(
     game: IParityGame,
     orderGenerator: IProgressOrder,
     asyncInterval: number = 5000
-): Promise<{0: IParityNode[]; 1: IParityNode[]; iterations: number}> {
+): Promise<{
+    0: IParityNode[];
+    1: IParityNode[];
+    iterations: number;
+    measures: IProgressMeasures;
+}> {
     // Initialize the data structures
     const minMeasure: IProgressMeasure = new Array(game.maxPriority + 1).fill(0);
     const maxMeasure: IProgressMeasure = new Array(game.maxPriority + 1)
@@ -25,7 +30,7 @@ export async function solveSmallProgressMeasures(
     const maxId = game.nodes.reduce((m, {id}) => Math.max(m, id), 0);
     const measures: IProgressMeasure[] = new Array(maxId + 1).fill(minMeasure);
 
-    if (game.nodes.length == 0) return {0: [], 1: [], iterations: 0};
+    if (game.nodes.length == 0) return {0: [], 1: [], iterations: 0, measures};
 
     // Initialize the order factory
     const order = orderGenerator(game);
@@ -54,6 +59,7 @@ export async function solveSmallProgressMeasures(
         0: game.nodes.filter(v => measures[v.id] != "T"),
         1: game.nodes.filter(v => measures[v.id] == "T"),
         iterations: maxIterations - i,
+        measures,
     };
 }
 

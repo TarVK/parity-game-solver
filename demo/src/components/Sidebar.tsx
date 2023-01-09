@@ -16,20 +16,24 @@ import {State} from "../model/State";
 import {useDataHook} from "model-react";
 import {evenColor, oddColor} from "../colors";
 import {formatTime} from "../util/formatTime";
-import {IParityNode} from "parity-game-solver";
+import {IParityNode, IProgressMeasure} from "parity-game-solver";
 import {InfoText} from "./InfoText";
+import {PGGraphState} from "./pg/graph/PGGraphState";
+import ReactJson from "react-json-view";
 
 const theme = getTheme();
-export const Sidebar: FC<{state: State}> = ({state}) => {
+export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
+    const {PGState} = state;
     const [h] = useDataHook();
-    const winner = state.getNodeWinner(0, h);
-    const winners = state.getNodeWinners(h);
-    const stats = state.getCheckData(h);
+    const winner = PGState.getNodeWinner(0, h);
+    const winners = PGState.getNodeWinners(h);
+    const stats = PGState.getCheckData(h);
 
     const [showingNodes, setShowingNodes] = useState(false);
+    const showingMeasures = state.areMeasuresShown(h);
 
-    const order = state.getOrderType(h);
-    const strategy = state.getStrategyType(h);
+    const order = PGState.getOrderType(h);
+    const strategy = PGState.getStrategyType(h);
 
     const nodeIds = useMemo(() => {
         if (!showingNodes || !winners) return [[], []];
@@ -49,9 +53,20 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
             ));
         return [map(winners[0]), map(winners[1])];
     }, [showingNodes, winners]);
+    const measures = useMemo(() => {
+        if (!showingMeasures) return {};
+
+        const obj: Record<number, string> = {};
+        for (let node of PGState.getNodes()) {
+            const measure = PGState.getNodeMeasure(node);
+            if (!measure) continue;
+            obj[node.id] = measure == "T" ? measure : "(" + measure.join(",") + ")";
+        }
+        return obj;
+    }, [showingMeasures, PGState.getNodes(h)]);
 
     const computationTime = stats && formatTime(stats?.duration);
-    const checking = state.isChecking(h);
+    const checking = PGState.isChecking(h);
     return (
         <Stack
             style={{
@@ -109,7 +124,7 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                         },
                     ]}
                     notifyOnReselect
-                    onChange={(e, option) => option && state.setOrderType(option.data)}
+                    onChange={(e, option) => option && PGState.setOrderType(option.data)}
                 />
             </StackItem>
             <StackItem
@@ -151,7 +166,9 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                         },
                     ]}
                     notifyOnReselect
-                    onChange={(e, option) => option && state.setStrategyType(option.data)}
+                    onChange={(e, option) =>
+                        option && PGState.setStrategyType(option.data)
+                    }
                 />
             </StackItem>
             <Label>
@@ -160,8 +177,8 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                 </InfoText>
             </Label>
             <Toggle
-                checked={state.usesPerPriorityStrategy(h)}
-                onChange={(e, v) => v != null && state.setUsesPerPriorityStrategy(v)}
+                checked={PGState.usesPerPriorityStrategy(h)}
+                onChange={(e, v) => v != null && PGState.setUsesPerPriorityStrategy(v)}
             />
             <StackItem
                 style={{
@@ -170,8 +187,8 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                 }}>
                 <PrimaryButton
                     style={{width: "100%"}}
-                    onClick={() => state.check()}
-                    disabled={state.getNodeWinners(h) != null || checking}>
+                    onClick={() => PGState.check()}
+                    disabled={PGState.getNodeWinners(h) != null || checking}>
                     Check
                     {checking && <Spinner style={{marginLeft: theme.spacing.m}} />}
                 </PrimaryButton>
@@ -248,11 +265,27 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                             overflow: "auto",
                             marginBottom: theme.spacing.m,
                         }}>
-                        <Toggle
-                            label="Show nodes"
-                            checked={showingNodes}
-                            onChange={(e, v) => v != null && setShowingNodes(v)}
-                        />
+                        <Stack horizontal>
+                            <StackItem>
+                                <Toggle
+                                    label="Show nodes"
+                                    checked={showingNodes}
+                                    onChange={(e, v) => v != null && setShowingNodes(v)}
+                                />
+                            </StackItem>
+                            <StackItem grow={1}>
+                                <div />
+                            </StackItem>
+                            <StackItem>
+                                <Toggle
+                                    label="Show measures"
+                                    checked={showingMeasures}
+                                    onChange={(e, v) =>
+                                        v != null && state.setMeasuresShown(v)
+                                    }
+                                />
+                            </StackItem>
+                        </Stack>
                         {showingNodes && (
                             <>
                                 <Label>Nodes won by even</Label>
@@ -260,8 +293,22 @@ export const Sidebar: FC<{state: State}> = ({state}) => {
                                 <Label style={{marginTop: theme.spacing.s1}}>
                                     Nodes won by odd
                                 </Label>
-                                <div>{nodeIds[1]}</div>
+                                <div style={{marginBottom: theme.spacing.s1}}>
+                                    {nodeIds[1]}
+                                </div>
                             </>
+                        )}
+                        {showingMeasures && (
+                            <ReactJson
+                                src={measures}
+                                name={"measures"}
+                                displayDataTypes={false}
+                                quotesOnKeys={false}
+                                displayObjectSize={false}
+                                sortKeys={true}
+                                enableClipboard={false}
+                                collapsed={true}
+                            />
                         )}
                     </StackItem>
                 </>

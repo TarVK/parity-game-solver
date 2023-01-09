@@ -14,6 +14,8 @@ import {
     solveSmallProgressMeasures,
     createPriorityOrder,
     createGetPriorityOrderFromList,
+    IProgressMeasure,
+    IProgressMeasures,
 } from "parity-game-solver";
 import {DataCacher, ExecutionState, Field, IDataHook} from "model-react";
 import {drawGraph} from "../components/pg/graph/layout/drawGraph";
@@ -52,12 +54,13 @@ export class State {
     protected result = new Field<{
         0: IParityNode[];
         1: IParityNode[];
+        measures: IProgressMeasures;
         iterations: number;
         duration: number;
     } | null>(null);
     protected orderType = new Field<IOrderType>("random");
-    protected strategyType = new Field<IStrategyType>("adaptive");
-    protected perPriorityStrategy = new Field<boolean>(true);
+    protected strategyType = new Field<IStrategyType>("graph");
+    protected perPriorityStrategy = new Field<boolean>(false);
     protected loadingResult = new ExecutionState();
 
     // PG text handling
@@ -422,6 +425,23 @@ export class State {
      */
     public getNodeWinner(node: number | IParityNode, hook?: IDataHook): null | 0 | 1 {
         return this.winners.get(hook)[typeof node == "number" ? node : node.id] ?? null;
+    }
+
+    /**
+     * Retrieves the measure for a given node
+     * @param node The node to get the measure for
+     * @param hook The hook to subscribe to changes
+     * @returns The progress measure or null if the check was not performed
+     */
+    public getNodeMeasure(
+        node: number | IParityNode,
+        hook?: IDataHook
+    ): IProgressMeasure | null {
+        const result = this.result.get(hook);
+        if (!result) return null;
+
+        const id = typeof node == "number" ? node : node.id;
+        return result.measures[id];
     }
 
     /**

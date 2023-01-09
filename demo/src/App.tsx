@@ -76,7 +76,7 @@ export const App: FC = () => {
                                 boxShadow: theme.effects.elevation8,
                                 zIndex: 100,
                             }}>
-                            <Sidebar state={state} />
+                            <Sidebar state={editorState} />
                         </StackItem>
                     </Stack>
                 </StackItem>
