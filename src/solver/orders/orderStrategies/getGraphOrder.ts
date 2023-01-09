@@ -11,9 +11,13 @@ export function* getGraphOrder(
 ): Generator<IParityNode, void, boolean> {
     const nodes = createReverseNodes(list);
 
+    const maxId = list.reduce((m, {id}) => Math.max(m, id), 0);
+    const visited: number[] = new Array(maxId + 1).fill(0);
+
     const length = list.length;
     const queue = new LinkedList<INonEmptyPath>([]);
     let failCount = 0;
+    let searchId = 0;
     while (true)
         for (let node of nodes) {
             const {node: initialNode, predecessors} = node;
@@ -21,8 +25,10 @@ export function* getGraphOrder(
             if (changed) {
                 failCount = 0;
 
+                // successors[initialNode.id] = null;
                 const root: IPath = {node, prev: null};
                 queue.clear();
+                searchId++;
 
                 // If the first node lifted, perform a (looping) BFS of lifting from this node
                 let loop: IPath = null;
@@ -39,10 +45,13 @@ export function* getGraphOrder(
                             node: {node, predecessors},
                         },
                     } = queueNode;
+
                     if (node == initialNode) {
                         loop = queueNode.value;
                         break;
                     }
+                    if (visited[node.id] == searchId) continue;
+                    visited[node.id] = searchId;
 
                     const changed = yield node;
                     if (changed)
@@ -55,6 +64,8 @@ export function* getGraphOrder(
                 // If a lift loop was found, continue the loop until no more progress is made
                 if (loop) {
                     const loopNodes: IParityNode[] = [];
+                    // let node = successors[initialNode.id];
+                    // successors[initialNode.id] = null;
                     let node: IPath = loop;
                     while (node) {
                         loopNodes.push(node.node.node);

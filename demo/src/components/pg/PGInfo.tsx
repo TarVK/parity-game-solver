@@ -62,17 +62,10 @@ export const PGInfo: FC<{state: State}> = ({state}) => {
 
             <div style={{marginTop: 20}}>
                 <Label>Select file</Label>
-                {loading ? (
-                    <Spinner />
-                ) : (
-                    <input
-                        type="file"
-                        id="avatar"
-                        name="avatar"
-                        accept="text"
-                        onChange={selectText}
-                    />
-                )}
+                <div style={{display: "flex"}}>
+                    <input type="file" accept="text" onChange={selectText} />{" "}
+                    {loading && <Spinner style={{display: "inline"}} />}
+                </div>
             </div>
         </div>
     );
