@@ -122,6 +122,12 @@ export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
                             text: "Graph order",
                             selected: order == "graph",
                         },
+                        {
+                            key: "4",
+                            data: "gain" as const,
+                            text: "Gain order",
+                            selected: order == "gain",
+                        },
                     ]}
                     notifyOnReselect
                     onChange={(e, option) => option && PGState.setOrderType(option.data)}

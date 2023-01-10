@@ -16,6 +16,9 @@ import {
     createGetPriorityOrderFromList,
     IProgressMeasure,
     IProgressMeasures,
+    getGraphOrder,
+    createGraphOrder,
+    createGainOrder,
 } from "parity-game-solver";
 import {DataCacher, ExecutionState, Field, IDataHook} from "model-react";
 import {drawGraph} from "../components/pg/graph/layout/drawGraph";
@@ -27,8 +30,6 @@ import {IOrderType} from "../_types/IOrderType";
 import {IStrategyType} from "../_types/IStrategyType";
 import {IOrderFactory} from "parity-game-solver/build/solver/orders/_types/IOrderFactory";
 import {IProgressOrder} from "parity-game-solver/build/solver/_types/IProgressOrder";
-import {getGraphOrder} from "../../../src/solver/orders/orderStrategies";
-import {createGraphOrder} from "../../../src/solver/orders";
 
 /**
  * A class to store the application node
@@ -293,6 +294,7 @@ export class State {
             random: (f: IOrderFactory) => createRandomOrder(0, f),
             priority: createPriorityOrder,
             graph: createGraphOrder,
+            gain: createGainOrder,
         }[this.orderType.get(h)];
         let strategy: IOrderFactory = {
             adaptive: getAdaptiveOrderFromList,
