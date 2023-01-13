@@ -90,7 +90,7 @@ export const GraphEditorToolbar: FC<{
             />
             <SidebarButton
                 icon="Info"
-                hover="Show LTS info instead of graph"
+                hover="Show PG info instead of graph"
                 title="Show info"
                 onClick={() => state.enableSimplifiedView(!state.useSimplifiedView())}
                 selected={state.useSimplifiedView(h)}
