@@ -6,7 +6,21 @@ import {IParityGame} from "parity-game-solver";
  * @returns The list of transitions
  */
 export function getTransitions(pg: IParityGame): {from: number; to: number}[] {
-    return pg.nodes.flatMap(({id: from, successors}) =>
-        successors.map(({id: to}) => ({from, to}))
-    );
+    const ids = new Set<number>();
+    return pg.nodes
+        .filter(({id}) => {
+            if (ids.has(id)) return false;
+            ids.add(id);
+            return true;
+        })
+        .flatMap(({id: from, successors}) => {
+            const toIds = new Set<number>();
+            return successors
+                .filter(({id}) => {
+                    if (toIds.has(id)) return false;
+                    toIds.add(id);
+                    return true;
+                })
+                .map(({id: to}) => ({from, to}));
+        });
 }

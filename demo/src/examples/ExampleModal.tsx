@@ -13,8 +13,10 @@ import {
 import React, {FC, useRef, useState} from "react";
 import {useEffect} from "react";
 import {basic} from "./types/basic";
+import {cacheCoherence} from "./types/cacheCoherence";
+import {diningPhilosophers} from "./types/diningPhilosophers";
 
-const examples = [basic];
+const examples = [basic, cacheCoherence, diningPhilosophers];
 const theme = getTheme();
 export const ExampleModal: FC<{onLoad: (model: string) => Promise<void>}> = ({
     onLoad,

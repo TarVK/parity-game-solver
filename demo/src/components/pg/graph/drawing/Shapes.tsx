@@ -1,4 +1,4 @@
-import {useDataHook} from "model-react";
+import {useDataHook, useMemoDataHook} from "model-react";
 import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useWindowSize} from "../../../../util/useWindowSize";
 import {IPoint} from "../../../../_types/IPoint";
@@ -38,6 +38,14 @@ export const Shapes: FC<{state: PGGraphState}> = ({state, children}) => {
     const {scale, offset} = state.getTransformation(h);
     const ltsState = state.PGState;
     const lts = ltsState.getPG(h);
+    const [nodes] = useMemoDataHook(h => {
+        const ids = new Set<number>();
+        return ltsState.getNodes(h).filter(({id}) => {
+            if (ids.has(id)) return false;
+            ids.add(id);
+            return true;
+        });
+    }, []);
     const transitions = useMemo(() => (lts ? getTransitions(lts) : []), [lts]);
 
     return (
@@ -75,7 +83,7 @@ export const Shapes: FC<{state: PGGraphState}> = ({state, children}) => {
             {transitions.map(({to, from}) => (
                 <Arc key={`${from}-${to}`} editorState={state} from={from} to={to} />
             ))}
-            {ltsState.getNodes(h).map(({id: stateID}) => (
+            {nodes.map(({id: stateID}) => (
                 <Node key={stateID} editorState={state} node={stateID} />
             ))}
         </svg>

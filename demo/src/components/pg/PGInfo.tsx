@@ -19,8 +19,8 @@ export const PGInfo: FC<{state: State}> = ({state}) => {
         async e => {
             setLoading(true);
             const file = e.target.files?.[0];
-            if (!file) return;
             try {
+                if (!file) return;
                 const text = await file.text();
                 state.clearPoses();
                 state.setPG(text);

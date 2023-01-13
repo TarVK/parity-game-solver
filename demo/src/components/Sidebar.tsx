@@ -54,16 +54,14 @@ export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
         return [map(winners[0]), map(winners[1])];
     }, [showingNodes, winners]);
     const measures = useMemo(() => {
-        if (!showingMeasures) return {};
+        if (!showingMeasures) return [];
 
-        const obj: Record<number, string> = {};
-        for (let node of PGState.getNodes()) {
+        return PGState.getNodes().map(node => {
             const measure = PGState.getNodeMeasure(node);
-            if (!measure) continue;
-            obj[node.id] = measure == "T" ? measure : "(" + measure.join(",") + ")";
-        }
-        return obj;
-    }, [showingMeasures, PGState.getNodes(h)]);
+            if (!measure) return undefined;
+            return measure == "T" ? measure : "(" + measure.join(",") + ")";
+        });
+    }, [showingMeasures, PGState.getNodes(h), PGState.getNodeMeasure(0, h)]);
 
     const computationTime = stats && formatTime(stats?.duration);
     const checking = PGState.isChecking(h);
@@ -246,7 +244,7 @@ export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
                             verticalAlign="center"
                             tokens={{childrenGap: theme.spacing.m}}>
                             <StackItem grow={1}>
-                                <Label>Number of states won by even</Label>
+                                <Label>Number of nodes won by even</Label>
                             </StackItem>
                             <StackItem>{winners[0].length}</StackItem>
                         </Stack>
@@ -257,7 +255,7 @@ export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
                             verticalAlign="center"
                             tokens={{childrenGap: theme.spacing.m}}>
                             <StackItem grow={1}>
-                                <Label>Number of states won by odd </Label>
+                                <Label>Number of nodes won by odd </Label>
                             </StackItem>
                             <StackItem>{winners[1].length}</StackItem>
                         </Stack>
@@ -306,6 +304,7 @@ export const Sidebar: FC<{state: PGGraphState}> = ({state}) => {
                         )}
                         {showingMeasures && (
                             <ReactJson
+                                style={{overflow: "hidden"}}
                                 src={measures}
                                 name={"measures"}
                                 displayDataTypes={false}

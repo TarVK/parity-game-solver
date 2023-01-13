@@ -3,7 +3,7 @@ import {getOrderFromList} from "./orderStrategies/getOrderFromList";
 import {IOrderFactory} from "./_types/IOrderFactory";
 
 /**
- * creates a small progress measure order, based on the largest possible gain being first
+ * Creates a small progress measure order, based on the largest possible gain being first
  * @param getOrder The order strategy type
  * @returns The order generator
  */

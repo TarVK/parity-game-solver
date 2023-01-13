@@ -54,7 +54,7 @@ export const Header: FC<{info?: React.ReactNode}> = ({children, info}) => {
                         </StackItem>
                     )}
                     <StackItem align="center">
-                        <Link href="https://github.com/TarVK/model-checker">
+                        <Link href="https://github.com/TarVK/parity-game-solver">
                             <CommandBarButton
                                 styles={{root: {padding: theme.spacing.l1}}}>
                                 Github
