@@ -41,7 +41,7 @@ export const stringifyParityGame = (pg: IParityGameAST) =>
         .map(
             ({id, owner, name, priority, successors}) =>
                 `${id} ${priority} ${owner} ${successors.join(",")}${
-                    name ? " " + name : ""
+                    name ? ` "` + name + `"` : ""
                 };`
         )
         .join("\n");

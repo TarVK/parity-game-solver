@@ -280,7 +280,7 @@ export const PGComp: FC<{editorState: PGGraphState}> = ({editorState}) => {
                         if (evt.key == "Enter") updateNode();
                         evt.stopPropagation();
                     }}
-                    label="Name"
+                    label="Name (optional)"
                 />
             </StandardModal>
         </div>
